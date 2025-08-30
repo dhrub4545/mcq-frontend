@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Drawer,
@@ -23,6 +23,16 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useThemeMode } from '../../contexts/ThemeContext';
 import Navbar from './Navbar'; // Import your Navbar component
+
+// API URL configuration for environment support
+const getApiUrl = () => {
+  // For Next.js use NEXT_PUBLIC_API_URL, for React use REACT_APP_API_URL
+  return process.env.NEXT_PUBLIC_API_URL || 
+         process.env.REACT_APP_API_URL || 
+         'http://localhost:5000'; // Fallback for local development
+};
+
+const API_URL = getApiUrl();
 
 const drawerWidth = 240;
 
@@ -50,10 +60,10 @@ const Layout = ({ children }) => {
       try {
         const userToken = JSON.parse(localStorage.getItem('quizUser') || '{}');
         const token = userToken.token;
-
         if (!token) return;
 
-        const response = await fetch('http://localhost:5000/api/quizzes/public', {
+        // Updated API call to use environment variable
+        const response = await fetch(`${API_URL}/api/quizzes/public`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -283,7 +293,6 @@ const Layout = ({ children }) => {
       >
         {drawer}
       </Drawer>
-
       <Drawer
         variant="permanent"
         sx={{
@@ -309,7 +318,7 @@ const Layout = ({ children }) => {
       }}>
         {/* USE YOUR NAVBAR COMPONENT INSTEAD OF CUSTOM APPBAR */}
         <Navbar onMenuClick={handleDrawerToggle} />
-
+        
         {/* Main content */}
         <Box sx={{ 
           flexGrow: 1, 
@@ -325,4 +334,3 @@ const Layout = ({ children }) => {
 };
 
 export default Layout;
-
