@@ -8,7 +8,10 @@ const getApiUrl = () => {
          'http://localhost:5000'; // Fallback for local development
 };
 
+// In your auth service file
 const API_BASE_URL = getApiUrl();
+console.log('API_BASE_URL:', API_BASE_URL); // Should show your Vercel URL, not localhost
+
 
 export const loginUser = async (username, password) => {
   try {
