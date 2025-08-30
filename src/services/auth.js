@@ -2,7 +2,7 @@
 
 // API URL configuration for environment support
 const getApiUrl = () => {
-  return import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  return import.meta.env.VITE_API_URL;
 };
 
 // In your auth service file
