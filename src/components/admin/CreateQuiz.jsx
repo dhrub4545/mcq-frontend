@@ -21,6 +21,16 @@ import SaveIcon from '@mui/icons-material/Save';
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 
+// API URL configuration for environment support
+const getApiUrl = () => {
+  // For Next.js use NEXT_PUBLIC_API_URL, for React use REACT_APP_API_URL
+  return process.env.NEXT_PUBLIC_API_URL || 
+         process.env.REACT_APP_API_URL || 
+         'http://localhost:5000'; // Fallback for local development
+};
+
+const API_URL = getApiUrl();
+
 const CreateQuiz = () => {
   const [quizData, setQuizData] = useState({
     name: '',
@@ -54,7 +64,6 @@ const CreateQuiz = () => {
 
       const data = await response.json();
       const pages = data.query.pages;
-
       for (const pageId in pages) {
         if (pages[pageId].extract) {
           return pages[pageId].extract;
@@ -72,7 +81,6 @@ const CreateQuiz = () => {
 ${context ? `Context:\n${context.substring(0, 2000)}\n\n` : ''}
 Topic: ${topic}
 Difficulty: ${difficulty}
-
 Format each as: ["question", ["option1", "option2", "option3", "option4"], correctIndex]
 Only return a valid JSON array, no other text or markdown.`;
   };
@@ -86,6 +94,7 @@ Only return a valid JSON array, no other text or markdown.`;
       setGeneratedQuestions([]);
 
       if (!quizData.topic.trim()) throw new Error('Please enter a topic');
+
       const count = Math.max(1, Math.min(20, quizData.questionCount));
 
       let wikiContext = '';
@@ -106,7 +115,8 @@ Only return a valid JSON array, no other text or markdown.`;
         wikiContext.startsWith('Error') ? null : wikiContext
       );
 
-      const response = await fetch('http://localhost:5000/api/generate-mcqs', {
+      // Updated API call to use environment variable
+      const response = await fetch(`${API_URL}/api/generate-mcqs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt, count })
@@ -127,7 +137,6 @@ Only return a valid JSON array, no other text or markdown.`;
           status: 'pending' // 'pending', 'accepted', or 'rejected'
         }))
       );
-
     } catch (err) {
       setError(err.message || 'Failed to generate questions');
     } finally {
@@ -162,7 +171,8 @@ Only return a valid JSON array, no other text or markdown.`;
         throw new Error('Authentication required. Please login again.');
       }
 
-      const response = await fetch('http://localhost:5000/api/quizzes', {
+      // Updated API call to use environment variable
+      const response = await fetch(`${API_URL}/api/quizzes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -172,7 +182,6 @@ Only return a valid JSON array, no other text or markdown.`;
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.error || 'Failed to save quiz');
       }
@@ -324,7 +333,6 @@ Only return a valid JSON array, no other text or markdown.`;
             onChange={(e) => setQuizData({ ...quizData, topic: e.target.value })}
             required
           />
-
           <FormControl sx={{ minWidth: 120 }}>
             <InputLabel>Difficulty</InputLabel>
             <Select
@@ -337,7 +345,6 @@ Only return a valid JSON array, no other text or markdown.`;
               <MenuItem value="hard">Hard</MenuItem>
             </Select>
           </FormControl>
-
           <TextField
             label="Questions"
             type="number"
@@ -366,7 +373,6 @@ Only return a valid JSON array, no other text or markdown.`;
           >
             {loading ? 'Generating...' : 'Generate Questions'}
           </Button>
-
           <Button
             variant="outlined"
             onClick={handleReset}
