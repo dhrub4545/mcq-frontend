@@ -24,6 +24,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
+// API URL configuration for environment support
+const getApiUrl = () => {
+  // For Next.js use NEXT_PUBLIC_API_URL, for React use REACT_APP_API_URL
+  return process.env.NEXT_PUBLIC_API_URL || 
+         process.env.REACT_APP_API_URL || 
+         'http://localhost:5000'; // Fallback for local development
+};
+
+const API_URL = getApiUrl();
+
 const ViewQuizzes = () => {
   const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState([]);
@@ -58,7 +68,8 @@ const ViewQuizzes = () => {
         
         console.log('Fetching quizzes with token:', user.token.substring(0, 20) + '...');
         
-        const response = await fetch('http://localhost:5000/api/quizzes', {
+        // Updated API call to use environment variable
+        const response = await fetch(`${API_URL}/api/quizzes`, {
           headers: {
             'Authorization': `Bearer ${user.token}`,
             'Content-Type': 'application/json'
@@ -99,7 +110,8 @@ const ViewQuizzes = () => {
         return;
       }
       
-      const response = await fetch(`http://localhost:5000/api/quizzes/${quizId}`, {
+      // Updated API call to use environment variable
+      const response = await fetch(`${API_URL}/api/quizzes/${quizId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${user.token}`,
