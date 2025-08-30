@@ -1,5 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+// API URL configuration for environment support
+const getApiUrl = () => {
+  // For Next.js use NEXT_PUBLIC_API_URL, for React use REACT_APP_API_URL
+  return process.env.NEXT_PUBLIC_API_URL || 
+         process.env.REACT_APP_API_URL || 
+         'http://localhost:5000'; // Fallback for local development
+};
+
+const API_URL = getApiUrl();
+
 const QuizContext = createContext();
 
 export const useQuiz = () => {
@@ -25,12 +35,12 @@ export const QuizProvider = ({ children }) => {
     try {
       const user = JSON.parse(localStorage.getItem('quizUser') || '{}');
       const token = user.token;
-
       if (!token) {
         throw new Error('Authentication required. Please login first.');
       }
 
-      const response = await fetch('http://localhost:5000/api/quizzes/public', {
+      // Updated API call to use environment variable
+      const response = await fetch(`${API_URL}/api/quizzes/public`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -58,16 +68,15 @@ export const QuizProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-
       // Get auth token from localStorage
       const user = JSON.parse(localStorage.getItem('quizUser') || '{}');
       const token = user.token;
-
       if (!token) {
         throw new Error('Authentication required. Please login first.');
       }
 
-      const response = await fetch(`http://localhost:5000/api/quizzes/${quizId}`, {
+      // Updated API call to use environment variable
+      const response = await fetch(`${API_URL}/api/quizzes/${quizId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -104,16 +113,15 @@ export const QuizProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-
       // Get auth token from localStorage
       const user = JSON.parse(localStorage.getItem('quizUser') || '{}');
       const token = user.token;
-
       if (!token) {
         throw new Error('Authentication required. Please login first.');
       }
 
-      const response = await fetch('http://localhost:5000/api/test-history', {
+      // Updated API call to use environment variable
+      const response = await fetch(`${API_URL}/api/test-history`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
