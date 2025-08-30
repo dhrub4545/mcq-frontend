@@ -1,7 +1,15 @@
 // src/services/auth.js
 
-// Use REACT_APP_API_URL from environment variables, fallback to localhost:5000
-const API_BASE_URL = 'http://localhost:5000';
+// API URL configuration for environment support
+const getApiUrl = () => {
+  // For Next.js use NEXT_PUBLIC_API_URL, for React use REACT_APP_API_URL
+  return process.env.NEXT_PUBLIC_API_URL || 
+         process.env.REACT_APP_API_URL || 
+         'http://localhost:5000'; // Fallback for local development
+};
+
+const API_BASE_URL = getApiUrl();
+
 export const loginUser = async (username, password) => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/login`, {
@@ -11,14 +19,14 @@ export const loginUser = async (username, password) => {
       },
       body: JSON.stringify({ username, password }),
     });
-
+    
     const data = await response.json();
-
+    
     if (!response.ok) {
       throw new Error(data.error || 'Login failed');
     }
-
-    return data.user;
+    
+    return data.user; // Return user object with token
   } catch (error) {
     throw new Error(error.message || 'Login failed');
   }
@@ -33,14 +41,14 @@ export const registerUser = async (userData) => {
       },
       body: JSON.stringify(userData),
     });
-
+    
     const data = await response.json();
-
+    
     if (!response.ok) {
       throw new Error(data.error || 'Registration failed');
     }
-
-    return data.user;
+    
+    return data.user; // Return user object with token
   } catch (error) {
     throw new Error(error.message || 'Registration failed');
   }
