@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -29,6 +29,16 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 
+// API URL configuration for environment support
+const getApiUrl = () => {
+  // For Next.js use NEXT_PUBLIC_API_URL, for React use REACT_APP_API_URL
+  return process.env.NEXT_PUBLIC_API_URL || 
+         process.env.REACT_APP_API_URL || 
+         'http://localhost:5000'; // Fallback for local development
+};
+
+const API_URL = getApiUrl();
+
 const Profile = ({ onClose }) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -39,7 +49,7 @@ const Profile = ({ onClose }) => {
 
   // Add debugging
   console.log('Profile component rendering...', { user });
-  
+
   useEffect(() => {
     console.log('Profile component mounted');
     console.log('User data:', user);
@@ -106,7 +116,8 @@ const Profile = ({ onClose }) => {
       
       console.log('Updating user info...', { userInfo, token: user.token });
       
-      const response = await fetch('http://localhost:5000/api/auth/update-profile', {
+      // Updated API call to use environment variable
+      const response = await fetch(`${API_URL}/api/auth/update-profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -119,7 +130,6 @@ const Profile = ({ onClose }) => {
       });
 
       console.log('Update response status:', response.status);
-
       if (response.ok) {
         const data = await response.json();
         console.log('Update successful:', data);
@@ -166,8 +176,9 @@ const Profile = ({ onClose }) => {
       }
 
       console.log('Changing password...');
-
-      const response = await fetch('http://localhost:5000/api/auth/change-password', {
+      
+      // Updated API call to use environment variable
+      const response = await fetch(`${API_URL}/api/auth/change-password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -180,7 +191,6 @@ const Profile = ({ onClose }) => {
       });
 
       console.log('Password change response status:', response.status);
-
       if (response.ok) {
         setSuccess('Password changed successfully!');
         setPasswordDialogOpen(false);
@@ -290,7 +300,6 @@ const Profile = ({ onClose }) => {
               {editMode ? 'Cancel' : 'Edit'}
             </Button>
           </Box>
-
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -337,7 +346,6 @@ const Profile = ({ onClose }) => {
               />
             </Grid>
           </Grid>
-
           {editMode && (
             <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
               <Button
@@ -435,4 +443,3 @@ const Profile = ({ onClose }) => {
 };
 
 export default Profile;
-
