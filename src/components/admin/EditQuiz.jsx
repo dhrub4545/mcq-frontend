@@ -30,6 +30,16 @@ import ClearIcon from '@mui/icons-material/Clear';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
 
+// API URL configuration for environment support
+const getApiUrl = () => {
+  // For Next.js use NEXT_PUBLIC_API_URL, for React use REACT_APP_API_URL
+  return process.env.NEXT_PUBLIC_API_URL || 
+         process.env.REACT_APP_API_URL || 
+         'http://localhost:5000'; // Fallback for local development
+};
+
+const API_URL = getApiUrl();
+
 const EditQuiz = () => {
   const { id } = useParams(); // Get quiz ID from URL params
   console.log(id);
@@ -45,7 +55,7 @@ const EditQuiz = () => {
     options: ['', '', '', ''],
     correctAnswer: 0
   });
-  
+
   // AI Generation states
   const [aiGenerationOpen, setAiGenerationOpen] = useState(false);
   const [generatedQuestions, setGeneratedQuestions] = useState([]);
@@ -87,7 +97,8 @@ const EditQuiz = () => {
           return;
         }
         
-        const response = await fetch(`http://localhost:5000/api/quizzes/${id}`, {
+        // Updated API call to use environment variable
+        const response = await fetch(`${API_URL}/api/quizzes/${id}`, {
           headers: {
             'Authorization': `Bearer ${user.token}`,
             'Content-Type': 'application/json'
@@ -114,7 +125,6 @@ const EditQuiz = () => {
         setLoading(false);
       }
     };
-
     fetchQuiz();
   }, [id]);
 
@@ -127,7 +137,8 @@ const EditQuiz = () => {
         return;
       }
       
-      const response = await fetch(`http://localhost:5000/api/quizzes/${id}`, {
+      // Updated API call to use environment variable
+      const response = await fetch(`${API_URL}/api/quizzes/${id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${user.token}`,
@@ -253,7 +264,6 @@ const EditQuiz = () => {
 ${context ? `Context:\n${context.substring(0, 2000)}\n\n` : ''}
 Topic: ${topic}
 Difficulty: ${difficulty}
-
 Format each as: ["question", ["option1", "option2", "option3", "option4"], correctIndex]
 Only return a valid JSON array, no other text or markdown.`;
   };
@@ -265,6 +275,7 @@ Only return a valid JSON array, no other text or markdown.`;
       setGeneratedQuestions([]);
 
       if (!quizData.topic.trim()) throw new Error('Quiz topic is required');
+
       const count = Math.max(1, Math.min(20, questionCount));
 
       let wikiContext = '';
@@ -285,7 +296,8 @@ Only return a valid JSON array, no other text or markdown.`;
         wikiContext.startsWith('Error') ? null : wikiContext
       );
 
-      const response = await fetch('http://localhost:5000/api/generate-mcqs', {
+      // Updated API call to use environment variable
+      const response = await fetch(`${API_URL}/api/generate-mcqs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt, count })
@@ -306,7 +318,6 @@ Only return a valid JSON array, no other text or markdown.`;
           status: 'pending' // 'pending', 'accepted', or 'rejected'
         }))
       );
-
     } catch (err) {
       setAiError(err.message || 'Failed to generate questions');
     } finally {
@@ -328,7 +339,6 @@ Only return a valid JSON array, no other text or markdown.`;
 
       const updatedQuestions = [...quizData.questions, ...acceptedQuestions];
       const success = await handleUpdateQuiz(updatedQuestions);
-
       if (success) {
         setSnackbarMessage(`Added ${acceptedQuestions.length} questions to quiz!`);
         setSnackbarOpen(true);
@@ -447,7 +457,6 @@ Only return a valid JSON array, no other text or markdown.`;
         <Typography variant="body1" sx={{ mb: 2 }}>
           Generate questions based on your quiz topic: <strong>{quizData.topic}</strong>
         </Typography>
-
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <FormControl sx={{ minWidth: 120, mr: 2 }}>
             
@@ -461,7 +470,6 @@ Only return a valid JSON array, no other text or markdown.`;
           />
           
           </FormControl>
-
           <Button
             variant="contained"
             onClick={handleGenerateQuestions}
@@ -471,15 +479,12 @@ Only return a valid JSON array, no other text or markdown.`;
             {aiLoading ? 'Generating...' : 'Generate Questions'}
           </Button>
         </Box>
-
         {aiError && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {aiError}
           </Alert>
         )}
-
         {renderWikipediaPanel()}
-
         {generatedQuestions.length > 0 && (
           <Box sx={{ mt: 2 }}>
             <Box sx={{ 
@@ -622,7 +627,7 @@ Only return a valid JSON array, no other text or markdown.`;
       <CircularProgress />
     </Box>
   );
-  
+
   if (error) return (
     <Box sx={{ p: 3 }}>
       <Alert severity="error">{error}</Alert>
@@ -662,6 +667,7 @@ Only return a valid JSON array, no other text or markdown.`;
       <Typography variant="h4" gutterBottom>
         Editing: {quizData.name}
       </Typography>
+
       <Typography variant="subtitle1" gutterBottom sx={{ mb: 3 }}>
         <Chip label={`Topic: ${quizData.topic}`} sx={{ mr: 1 }} />
         <Chip label={`Difficulty: ${quizData.difficulty}`} />
