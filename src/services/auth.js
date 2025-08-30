@@ -2,10 +2,7 @@
 
 // API URL configuration for environment support
 const getApiUrl = () => {
-  // For Next.js use NEXT_PUBLIC_API_URL, for React use REACT_APP_API_URL
-  return process.env.NEXT_PUBLIC_API_URL || 
-         process.env.REACT_APP_API_URL || 
-         'http://localhost:5000'; // Fallback for local development
+  return import.meta.env.VITE_API_URL || 'http://localhost:5000';
 };
 
 // In your auth service file
