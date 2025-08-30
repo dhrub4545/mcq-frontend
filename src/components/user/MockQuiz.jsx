@@ -29,6 +29,16 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
+// API URL configuration for environment support
+const getApiUrl = () => {
+  // For Next.js use NEXT_PUBLIC_API_URL, for React use REACT_APP_API_URL
+  return process.env.NEXT_PUBLIC_API_URL || 
+         process.env.REACT_APP_API_URL || 
+         'http://localhost:5000'; // Fallback for local development
+};
+
+const API_URL = getApiUrl();
+
 const MockQuiz = () => {
   const [quizConfig, setQuizConfig] = useState({
     topic: '',
@@ -39,16 +49,16 @@ const MockQuiz = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [selectedAnswer, setSelectedAnswer] = useState('');
-  
+
   // Timer states - Initialize to null to prevent immediate submission
   const [timeLeft, setTimeLeft] = useState(null);
   const [isTimeWarning, setIsTimeWarning] = useState(false);
   const [timerStarted, setTimerStarted] = useState(false);
-  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [quizStarted, setQuizStarted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
   const navigate = useNavigate();
 
   // Initialize timer only when quiz data is available
@@ -148,7 +158,6 @@ const MockQuiz = () => {
 ${context ? `Context:\n${context.substring(0, 2000)}\n\n` : ''}
 Topic: ${topic}
 Difficulty: ${difficulty}
-
 Format each as: ["question", ["option1", "option2", "option3", "option4"], correctIndex]
 Only return a valid JSON array, no other text or markdown.`;
   };
@@ -179,8 +188,8 @@ Only return a valid JSON array, no other text or markdown.`;
         wikiContext.startsWith('Error') ? null : wikiContext
       );
 
-      // Generate questions using the same API as CreateQuiz
-      const response = await fetch('http://localhost:5000/api/generate-mcqs', {
+      // Generate questions using the same API as CreateQuiz - Updated to use environment variable
+      const response = await fetch(`${API_URL}/api/generate-mcqs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt, count: quizConfig.questionCount })
@@ -286,13 +295,13 @@ Only return a valid JSON array, no other text or markdown.`;
         timeUp: isTimeUp
       };
 
-      // Save to server history (same as TakeQuiz)
+      // Save to server history (same as TakeQuiz) - Updated to use environment variable
       const user = JSON.parse(localStorage.getItem('quizUser') || '{}');
       const token = user.token;
 
       if (token) {
         try {
-          const response = await fetch('http://localhost:5000/api/test-history', {
+          const response = await fetch(`${API_URL}/api/test-history`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -418,7 +427,7 @@ Only return a valid JSON array, no other text or markdown.`;
 
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
-  
+
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       {/* Timer and Progress Header */}
@@ -444,13 +453,11 @@ Only return a valid JSON array, no other text or markdown.`;
             )}
           </Box>
         </Box>
-
         <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
           <Chip label={quizConfig.topic} size="small" />
           <Chip label={quizConfig.difficulty} size="small" color="secondary" />
           <Chip label="Mock Quiz" size="small" color="info" />
         </Box>
-
         <Typography variant="body1" color="text.secondary" gutterBottom>
           Question {currentQuestionIndex + 1} of {questions.length}
         </Typography>
